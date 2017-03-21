@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.acorn.BoardMapper">
+	<select id="boardRetrieve" resultType="BoardDTO" parameterType="int">
+		select num,author,title, content,
+		to_char(writeday,'YYYY/MM/dd') writeday ,
+		readcnt
+		from board
+		where num = #{num}
+	</select>
+
+	<insert id="boardWrite" parameterType="BoardDTO">
+		insert into board ( num,title,author,content,reproot,repstep,repindent)
+		values ( board_seq.nextval, #{title},#{author},#{content},board_seq.curval,0,0)
+	</insert> <!-- orginal content -->
+	<!-- <select id="boardList" resultType="BoardDTO">
+		select num,author,title,
+		to_char(writeday,'YYYY/MM/dd') writeday , readcnt
+		from board
+		order by num desc
+	</select>
+	 -->
+	 
+	<select id="boardList" resultType="BoardDTO">
+		select num,author,title,
+		to_char(writeday,'YYYY/MM/dd') writeday , readcnt
+		reoroot,repstep,repindent
+		from board
+		order by reproot desc, repstep asc
+	</select>
+	<select id="replyUI" parameterType="int" resultType="BoardDTO">
+	select num,author,title,
+		to_char(writeday,'YYYY/MM/dd') writeday , readcnt
+		reoroot,repstep,repindent
+		from board
+		where num=#{num}
+	</select>
+	<insert id="reply" parameterType="BoardDTO">
+		insert into board ( num,title,author,content,reproot,repstep,repindent)
+		values ( board_seq.nextval, #{title},#{author},#{content},
+		#{reproot},#{repstep}+1,#{repindent}+1)
+		
+	</insert>
+	<update id="replyUpdate" parameterType="BoardDTO" >
+	<![CDATA[
+	update board 
+	set repstep=repstep+1
+	where reproot=#{reproot} and repstep > #{repstep}
+	]]>
+	</update>
+	<!-- update board 
+	set repstep=repstep+1
+	where reproot=#{reproot} and repstep &gt; #{repstep}
+	 -->
+</mapper>
